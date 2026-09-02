@@ -1,0 +1,222 @@
+<!--
+  Code Metrics Lab — Text & Code Analyser
+  Team: Nestor Deodanes · Samuel Mendoza · Marcela Mata · Daniela Rodriguez
+  Purpose: Application shell — markup, CDN/local Vue loading, and mount point.
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Code Metrics Lab — Text &amp; Code Analyser</title>
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <div id="app">
+    <header class="app-header">
+      <h1 class="app-title">Code Metrics Lab — Text &amp; Code Analyser</h1>
+    </header>
+
+    <!-- a) Tool selector bar -->
+    <nav class="tool-bar" aria-label="Analysis tools">
+      <button
+        id="btnCounterTool"
+        class="tool-button"
+        :class="{ active: activeTool === 'counter' }"
+        @click="activeTool = 'counter'"
+        type="button"
+      >Counter</button>
+      <button
+        id="btnCaseTool"
+        class="tool-button"
+        :class="{ active: activeTool === 'case' }"
+        @click="activeTool = 'case'"
+        type="button"
+      >Case Converter</button>
+      <button
+        id="btnDuplicatesTool"
+        class="tool-button"
+        :class="{ active: activeTool === 'duplicates' }"
+        @click="activeTool = 'duplicates'"
+        type="button"
+      >Duplicate Lines</button>
+      <button
+        id="btnPasswordTool"
+        class="tool-button"
+        :class="{ active: activeTool === 'password' }"
+        @click="activeTool = 'password'"
+        type="button"
+      >Password Strength</button>
+      <button
+        id="btnJsonTool"
+        class="tool-button"
+        :class="{ active: activeTool === 'json' }"
+        @click="activeTool = 'json'"
+        type="button"
+      >JSON Formatter</button>
+    </nav>
+
+    <main class="workspace">
+      <!-- b) Editor area -->
+      <section class="editor" aria-label="Editor">
+        <label id="lblEditorHint" class="editor-hint" for="txtSourceText">
+          Paste or type your text, code or JSON here…
+        </label>
+        <textarea
+          id="txtSourceText"
+          class="source-text"
+          v-model="sourceText"
+          spellcheck="false"
+        ></textarea>
+      </section>
+
+      <!-- c) Results panel -->
+      <section id="pnlResults" class="results" aria-label="Results" aria-live="polite">
+
+        <!-- Counter (features 1 & 2) -->
+        <div v-if="activeTool === 'counter'" class="tool-panel">
+          <ul class="metrics-list">
+            <li class="metric-row">
+              <span class="metric-name">Words</span>
+              <span id="lblWordCount" class="metric-value">{{ wordCount }}</span>
+            </li>
+            <li class="metric-row">
+              <span class="metric-name">Characters</span>
+              <span id="lblCharCount" class="metric-value">{{ charCount }}</span>
+            </li>
+            <li class="metric-row">
+              <span class="metric-name">Lines</span>
+              <span id="lblLineCount" class="metric-value">{{ lineCount }}</span>
+            </li>
+            <li class="metric-row">
+              <span class="metric-name">Paragraphs</span>
+              <span id="lblParagraphCount" class="metric-value">{{ paragraphCount }}</span>
+            </li>
+            <li class="metric-row">
+              <span class="metric-name">Reading time</span>
+              <span id="lblReadingTime" class="metric-value">{{ readingTime }}</span>
+            </li>
+          </ul>
+          <p v-if="isEmpty" id="lblEmptyState" class="result-note empty-state">
+            Start typing to see live metrics.
+          </p>
+        </div>
+
+        <!-- Case converter (feature 3) -->
+        <div v-else-if="activeTool === 'case'" class="tool-panel">
+          <div class="result-field">
+            <label class="result-label" for="txtUpperResult">UPPERCASE</label>
+            <textarea id="txtUpperResult" class="result-box" readonly :value="upperResult"></textarea>
+          </div>
+          <div class="result-field">
+            <label class="result-label" for="txtLowerResult">lowercase</label>
+            <textarea id="txtLowerResult" class="result-box" readonly :value="lowerResult"></textarea>
+          </div>
+          <div class="result-field">
+            <label class="result-label" for="txtTitleResult">Title Case</label>
+            <textarea id="txtTitleResult" class="result-box" readonly :value="titleResult"></textarea>
+          </div>
+          <div class="result-field">
+            <label class="result-label" for="txtSnakeResult">snake_case</label>
+            <textarea id="txtSnakeResult" class="result-box" readonly :value="snakeResult"></textarea>
+          </div>
+          <div class="result-field">
+            <label class="result-label" for="txtCamelResult">camelCase</label>
+            <textarea id="txtCamelResult" class="result-box" readonly :value="camelResult"></textarea>
+          </div>
+        </div>
+
+        <!-- Duplicate line finder (feature 4) -->
+        <div v-else-if="activeTool === 'duplicates'" class="tool-panel">
+          <ul v-if="duplicateLines.length" id="lstDuplicateLines" class="duplicate-list">
+            <li v-for="item in duplicateLines" :key="item.line" class="duplicate-item">
+              "{{ item.line }}" — {{ item.count }} times
+            </li>
+          </ul>
+          <p v-else-if="hasText" id="lblNoDuplicates" class="result-note">
+            No duplicate lines found
+          </p>
+          <p v-else class="result-note empty-state">
+            Type or paste text to analyse it.
+          </p>
+        </div>
+
+        <!-- Password strength meter (feature 5) -->
+        <div v-else-if="activeTool === 'password'" class="tool-panel">
+          <div class="strength-header">
+            <span class="metric-name">Strength</span>
+            <span
+              id="lblStrengthLevel"
+              class="strength-level"
+              :class="passwordStrength.className"
+            >{{ passwordStrength.label }}</span>
+          </div>
+          <div
+            id="prgPasswordStrength"
+            class="strength-bar"
+            role="progressbar"
+            aria-valuemin="0"
+            aria-valuemax="5"
+            :aria-valuenow="passwordScore"
+          >
+            <div
+              class="strength-bar-fill"
+              :class="passwordStrength.className"
+              :style="{ width: (passwordScore / 5 * 100) + '%' }"
+            ></div>
+          </div>
+          <ul id="lstPasswordCriteria" class="criteria-list">
+            <li
+              v-for="item in passwordCriteria"
+              :key="item.label"
+              class="criteria-row"
+              :class="item.passed ? 'passed' : 'failed'"
+            >
+              <span class="criteria-icon" aria-hidden="true">{{ item.passed ? '✔' : '✗' }}</span>
+              <span class="criteria-text">{{ item.label }}</span>
+            </li>
+          </ul>
+        </div>
+
+        <!-- JSON formatter & validator (feature 6) -->
+        <div v-else-if="activeTool === 'json'" class="tool-panel">
+          <p
+            v-if="jsonResult.state === 'empty'"
+            class="result-note empty-state"
+          >
+            Paste JSON to format it
+          </p>
+          <template v-else-if="jsonResult.state === 'valid'">
+            <p id="lblJsonValid" class="json-message json-valid">Valid JSON</p>
+            <textarea
+              id="txtJsonOutput"
+              class="result-box json-output"
+              readonly
+              :value="jsonResult.output"
+            ></textarea>
+          </template>
+          <p
+            v-else
+            id="lblErrorMessage"
+            class="json-message json-error"
+          >
+            Invalid JSON: {{ jsonResult.error }}
+          </p>
+        </div>
+
+      </section>
+    </main>
+  </div>
+
+  <!-- Vue 3 from CDN, with a local offline fallback in /assets -->
+  <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+  <script>
+    // WHY: the rubric requires the app to work offline; if the CDN is
+    // unreachable, window.Vue is undefined, so we inject the local copy.
+    if (typeof window.Vue === 'undefined') {
+      document.write('<script src="assets/vue.global.prod.js"><\/script>');
+    }
+  </script>
+  <script src="js/app.js"></script>
+</body>
+</html>

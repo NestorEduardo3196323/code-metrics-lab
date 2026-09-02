@@ -1,0 +1,293 @@
+/*
+ * Code Metrics Lab — Text & Code Analyser
+ * Team: Nestor Deodanes · Samuel Mendoza · Marcela Mata · Daniela Rodriguez
+ * Purpose: Layout and palette. Colours live in CSS variables so a future
+ *          theme switch only needs to override this single block.
+ */
+
+:root {
+  --color-bg: #f4f6f8;
+  --color-surface: #ffffff;
+  --color-border: #d5dbe1;
+  --color-text: #1c2733;
+  --color-muted: #5c6b7a;
+  --color-accent: #2d6cdf;
+  --color-accent-text: #ffffff;
+  --radius: 8px;
+  --gap: 16px;
+  --shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  background: var(--color-bg);
+  color: var(--color-text);
+  line-height: 1.5;
+}
+
+#app {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--gap);
+}
+
+/* Header */
+.app-header {
+  margin-bottom: var(--gap);
+}
+
+.app-title {
+  font-size: 1.5rem;
+  margin: 0;
+}
+
+/* a) Tool selector bar */
+.tool-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: var(--gap);
+}
+
+.tool-button {
+  padding: 10px 16px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.tool-button:hover {
+  border-color: var(--color-accent);
+}
+
+.tool-button.active {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: var(--color-accent-text);
+}
+
+/* Workspace: editor on the left, results on the right */
+.workspace {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--gap);
+  align-items: start;
+}
+
+.editor,
+.results {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: var(--gap);
+}
+
+.editor-hint {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--color-muted);
+  font-size: 0.9rem;
+}
+
+.source-text {
+  width: 100%;
+  min-height: 360px;
+  resize: vertical;
+  padding: 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  font-family: "Consolas", "Menlo", "Courier New", monospace;
+  font-size: 0.95rem;
+  color: var(--color-text);
+  background: var(--color-bg);
+}
+
+.source-text:focus {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 1px;
+}
+
+.results {
+  min-height: 360px;
+}
+
+/* Tool panels inside the results area */
+.tool-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--gap);
+}
+
+.result-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.result-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-muted);
+}
+
+.result-box {
+  width: 100%;
+  min-height: 64px;
+  resize: vertical;
+  padding: 10px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  font-family: "Consolas", "Menlo", "Courier New", monospace;
+  font-size: 0.95rem;
+  color: var(--color-text);
+  background: var(--color-bg);
+}
+
+/* Counter metrics */
+.metrics-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.metric-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 10px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-bg);
+}
+
+.metric-name {
+  color: var(--color-muted);
+  font-size: 0.9rem;
+}
+
+.metric-value {
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+/* Duplicate line finder */
+.duplicate-list {
+  margin: 0;
+  padding-left: 1.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.duplicate-item {
+  font-family: "Consolas", "Menlo", "Courier New", monospace;
+  font-size: 0.95rem;
+}
+
+.result-note {
+  margin: 0;
+  color: var(--color-text);
+}
+
+.result-note.empty-state {
+  color: var(--color-muted);
+  font-style: italic;
+}
+
+/* Password strength meter */
+:root {
+  --color-weak: #d64545;
+  --color-medium: #d99e2b;
+  --color-strong: #2e9e5b;
+}
+
+.strength-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.strength-level {
+  font-weight: 700;
+}
+
+.strength-level.weak { color: var(--color-weak); }
+.strength-level.medium { color: var(--color-medium); }
+.strength-level.strong { color: var(--color-strong); }
+
+.strength-bar {
+  width: 100%;
+  height: 10px;
+  background: var(--color-border);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.strength-bar-fill {
+  height: 100%;
+  width: 0;
+  border-radius: 999px;
+  transition: width 0.2s ease, background 0.2s ease;
+}
+
+.strength-bar-fill.weak { background: var(--color-weak); }
+.strength-bar-fill.medium { background: var(--color-medium); }
+.strength-bar-fill.strong { background: var(--color-strong); }
+
+.criteria-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.criteria-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.criteria-icon {
+  font-weight: 700;
+  width: 1.2em;
+  text-align: center;
+}
+
+.criteria-row.passed .criteria-icon { color: var(--color-strong); }
+.criteria-row.failed .criteria-icon { color: var(--color-weak); }
+.criteria-row.failed .criteria-text { color: var(--color-muted); }
+
+/* JSON formatter & validator */
+.json-message {
+  margin: 0;
+  font-weight: 600;
+}
+
+.json-valid { color: var(--color-strong); }
+.json-error { color: var(--color-weak); font-weight: 500; }
+
+.json-output {
+  min-height: 240px;
+}
+
+/* Stack vertically on narrow screens */
+@media (max-width: 700px) {
+  .workspace {
+    grid-template-columns: 1fr;
+  }
+}
