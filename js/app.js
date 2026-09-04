@@ -7,14 +7,76 @@
 
 const { createApp } = Vue;
 
+// localStorage keys for the "keep the last text" stretch feature.
+const STORAGE_KEYS = {
+  sourceText: 'codeMetricsLab.sourceText',
+  activeTool: 'codeMetricsLab.activeTool'
+};
+
+// The tools a restored activeTool value is allowed to be, so corrupt or
+// stale storage can never leave the app on an unknown tool.
+const VALID_TOOLS = ['counter', 'case', 'duplicates', 'password', 'json'];
+
+// WHY: storage can be disabled (private mode), blocked, or full. Every access
+// is wrapped so a failure only skips persistence — the app keeps working from
+// memory and the in-memory data is never lost because a save/read failed.
+function safeStorageRead(key) {
+  try {
+    return localStorage.getItem(key);
+  } catch (error) {
+    console.warn('Code Metrics Lab: localStorage read skipped.', error);
+    return null;
+  }
+}
+
+function safeStorageWrite(key, value) {
+  try {
+    localStorage.setItem(key, value);
+  } catch (error) {
+    console.warn('Code Metrics Lab: localStorage write skipped.', error);
+  }
+}
+
+function safeStorageRemove(key) {
+  try {
+    localStorage.removeItem(key);
+  } catch (error) {
+    console.warn('Code Metrics Lab: localStorage remove skipped.', error);
+  }
+}
+
 createApp({
   data() {
+    // Restore from storage on load; fall back to defaults if nothing is
+    // saved or storage is unavailable.
+    const savedText = safeStorageRead(STORAGE_KEYS.sourceText);
+    const savedTool = safeStorageRead(STORAGE_KEYS.activeTool);
     return {
       // The single source of truth: everything derives from this in memory.
-      // No database — state lives only in the browser session.
-      sourceText: '',
-      activeTool: 'counter'
+      // localStorage only mirrors it; memory always wins.
+      sourceText: savedText !== null ? savedText : '',
+      activeTool: VALID_TOOLS.includes(savedTool) ? savedTool : 'counter',
+      // Holds the pending debounced-save timer id (not used for rendering).
+      saveTimer: null
     };
+  },
+  watch: {
+    // Debounce the text save by ~300ms so we don't write on every keystroke.
+    // An empty box removes the key instead of storing an empty string.
+    sourceText(value) {
+      clearTimeout(this.saveTimer);
+      this.saveTimer = setTimeout(() => {
+        if (value === '') {
+          safeStorageRemove(STORAGE_KEYS.sourceText);
+        } else {
+          safeStorageWrite(STORAGE_KEYS.sourceText, value);
+        }
+      }, 300);
+    },
+    // The active tool changes rarely, so persist it immediately.
+    activeTool(value) {
+      safeStorageWrite(STORAGE_KEYS.activeTool, value);
+    }
   },
   computed: {
     // WHY: several tools share this "is there anything to analyse?" test,
@@ -178,6 +240,14 @@ createApp({
     }
   },
   methods: {
+    // Empty the editor and drop the saved value. Cancelling the pending
+    // debounced save prevents a stray write from re-storing the old text.
+    clearText() {
+      clearTimeout(this.saveTimer);
+      this.sourceText = '';
+      safeStorageRemove(STORAGE_KEYS.sourceText);
+    },
+
     // WHY: snake_case and camelCase share the exact same tokenisation —
     // trim, split on any run of non-alphanumeric characters (whitespace or
     // punctuation), drop empties, and lowercase each piece.

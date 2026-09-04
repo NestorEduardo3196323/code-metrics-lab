@@ -1,18 +1,11 @@
-/*
- * Code Metrics Lab — Text & Code Analyser
- * Team: Nestor Deodanes · Samuel Mendoza · Marcela Mata · Daniela Rodriguez
- * Purpose: Layout and palette. Colours live in CSS variables so a future
- *          theme switch only needs to override this single block.
- */
-
 :root {
   --color-bg: #f4f6f8;
   --color-surface: #ffffff;
   --color-border: #d5dbe1;
   --color-text: #1c2733;
   --color-muted: #5c6b7a;
-  --color-accent: #2d6cdf;
-  --color-accent-text: #ffffff;
+  --color-accent: #4ADE80; /* project accent (Day 2 spec): neon green */
+  --color-accent-text: #06281a; /* dark green for legible text on neon green */
   --radius: 8px;
   --gap: 16px;
   --shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
@@ -117,6 +110,27 @@ body {
   outline-offset: 1px;
 }
 
+.editor-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 8px;
+}
+
+.clear-button {
+  padding: 8px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+}
+
+.clear-button:hover {
+  border-color: var(--color-accent);
+}
+
 .results {
   min-height: 360px;
 }
@@ -209,9 +223,9 @@ body {
 
 /* Password strength meter */
 :root {
-  --color-weak: #d64545;
+  --color-weak: #FB7185; /* warning/error stays reddish, never green */
   --color-medium: #d99e2b;
-  --color-strong: #2e9e5b;
+  --color-strong: var(--color-accent); /* success shares the green accent */
 }
 
 .strength-header {

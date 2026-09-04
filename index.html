@@ -1,8 +1,4 @@
-<!--
-  Code Metrics Lab — Text & Code Analyser
-  Team: Nestor Deodanes · Samuel Mendoza · Marcela Mata · Daniela Rodriguez
-  Purpose: Application shell — markup, CDN/local Vue loading, and mount point.
--->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -68,6 +64,14 @@
           v-model="sourceText"
           spellcheck="false"
         ></textarea>
+        <div class="editor-actions">
+          <button
+            id="btnClearText"
+            class="clear-button"
+            type="button"
+            @click="clearText"
+          >Clear</button>
+        </div>
       </section>
 
       <!-- c) Results panel -->
