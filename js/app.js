@@ -1,10 +1,3 @@
-/*
- * Code Metrics Lab — Text & Code Analyser
- * Team: Nestor Deodanes · Samuel Mendoza · Marcela Mata · Daniela Rodriguez
- * Purpose: Vue 3 application root — reactive state, tool selection, and the
- *          analysis logic for each tool (computed so results stay live).
- */
-
 const { createApp } = Vue;
 
 // localStorage keys for the "keep the last text" stretch feature.
